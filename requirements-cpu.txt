@@ -1,0 +1,41 @@
+--extra-index-url https://download.pytorch.org/whl/cpu
+
+# Core API & Server
+fastapi
+uvicorn
+pydantic
+python-multipart
+
+# AI & Media Processing
+kokoro-onnx
+faster-whisper
+moviepy>=2.0.0
+soundfile
+numpy>=1.24.0
+torch
+torchaudio
+huggingface-hub
+phonemizer-fork
+
+# Optional/Additional from original requirements
+misaki
+pydub
+num2words
+spacy
+tqdm
+psutil
+packaging
+wheel
+setuptools
+maturin
+fugashi[unidic]
+jaconv
+mojimoji
+pyopenjtalk
+jamo
+nltk
+cn2an
+jieba
+ordered-set
+pypinyin
+pypinyin-dict
