@@ -49,3 +49,6 @@ uploaded_voiceovers/
 url_media_cache/
 *.wav
 *.mp4
+
+*.mp4
+*.mp3
