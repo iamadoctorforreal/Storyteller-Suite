@@ -152,8 +152,7 @@ python -c "from huggingface_hub import hf_hub_download; hf_hub_download('hexgrad
 
 **Solution**: TTS works without phonemizer (no phoneme visualization). To install:
 ```bash
-pip install phonemizer espeakng-loader
-# Then install espeak-ng for your platform
+pip install misaki[zh] openphonemizer
 ```
 
 ### Out of memory errors

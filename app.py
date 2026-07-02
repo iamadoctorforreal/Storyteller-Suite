@@ -26,6 +26,7 @@ import shutil
 from pydantic import BaseModel
 from typing import Optional
 from kokoro_onnx import Kokoro
+from misaki import en as misaki_en
 from openphonemizer import OpenPhonemizer
 from moviepy import (
     ImageClip, VideoFileClip, concatenate_videoclips, AudioFileClip,
@@ -276,11 +277,26 @@ ensure_models()
 kokoro = Kokoro("kokoro-v1.0.onnx", "voices-v1.0.bin")
 
 # Allow deep-phonemizer checkpoint classes for PyTorch 2.6+ (weights_only=True default)
+# (Required by openphonemizer fallback, which uses deep-phonemizer internally)
 import torch
 from dp.preprocessing.text import Preprocessor, LanguageTokenizer, SequenceTokenizer
 torch.serialization.add_safe_globals([Preprocessor, LanguageTokenizer, SequenceTokenizer])
 
-phonemizer = OpenPhonemizer()
+# Primary G2P: misaki (Apache 2.0) — Kokoro's native phonemizer, no espeak-ng dependency
+_g2p = misaki_en.G2P(trf=False, british=False)
+# Fallback G2P: openphonemizer (BSD 3-Clause) — handles any edge cases misaki misses
+_fallback_phonemizer = OpenPhonemizer()
+
+def phonemize(text: str) -> str:
+    """Convert text to phonemes. Uses misaki (primary, Apache 2.0) with
+    openphonemizer (fallback, BSD 3-Clause). No espeak-ng / GPLv3 in chain."""
+    try:
+        phonemes, _ = _g2p(text)
+        if phonemes:
+            return phonemes
+    except Exception as e:
+        print(f"⚠️ misaki G2P failed, falling back to openphonemizer: {e}")
+    return _fallback_phonemizer(text)
 
 
 class Scene(BaseModel):
@@ -725,7 +741,7 @@ def generate_video_task(job_id: str, request: VideoRequest):
                 clean_text = sanitize_text_for_tts(scene.text)
                 audio_path = f"temp_{job_id}_{i}.wav"
                 try:
-                    phonemes = phonemizer(clean_text)
+                    phonemes = phonemize(clean_text)
                     samples, sample_rate = kokoro.create(phonemes, voice=request.voice, speed=1.0, lang="en-us", is_phonemes=True)
                     sf.write(audio_path, samples, sample_rate)
                     audio_clip = AudioFileClip(audio_path)
@@ -770,7 +786,7 @@ def generate_video_task(job_id: str, request: VideoRequest):
                 clean_text = sanitize_text_for_tts(scene.text)
                 audio_path = f"temp_{job_id}_{i}.wav"
                 try:
-                    phonemes = phonemizer(clean_text)
+                    phonemes = phonemize(clean_text)
                     samples, sample_rate = kokoro.create(phonemes, voice=request.voice, speed=1.0, lang="en-us", is_phonemes=True)
                     sf.write(audio_path, samples, sample_rate)
                     audio_clip = AudioFileClip(audio_path)

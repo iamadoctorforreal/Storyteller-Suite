@@ -28,7 +28,6 @@ REQUIRED_DEPENDENCIES = {
 
 # Optional dependencies
 OPTIONAL_DEPENDENCIES = {
-    'espeakng_loader': '0.1.0',
     'phonemizer': '3.0.0',
     'misaki': '0.1.0',
     'spacy': '3.0.0',
