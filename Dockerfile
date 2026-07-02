@@ -8,11 +8,9 @@ ENV PYTHONUNBUFFERED=1
 # Install system dependencies
 # - ffmpeg: For video/audio processing
 # - imagemagick: For MoviePy text rendering
-# - libespeak-ng1: For phonemizer (Kokoro TTS)
 RUN apt-get update && apt-get install -y \
     ffmpeg \
     imagemagick \
-    libespeak-ng1 \
     git \
     build-essential \
     cmake \

@@ -26,6 +26,7 @@ import shutil
 from pydantic import BaseModel
 from typing import Optional
 from kokoro_onnx import Kokoro
+from openphonemizer import OpenPhonemizer
 from moviepy import (
     ImageClip, VideoFileClip, concatenate_videoclips, AudioFileClip,
     TextClip, CompositeVideoClip, ColorClip, vfx, CompositeAudioClip, afx
@@ -273,6 +274,13 @@ def ensure_models():
 
 ensure_models()
 kokoro = Kokoro("kokoro-v1.0.onnx", "voices-v1.0.bin")
+
+# Allow deep-phonemizer checkpoint classes for PyTorch 2.6+ (weights_only=True default)
+import torch
+from dp.preprocessing.text import Preprocessor, LanguageTokenizer, SequenceTokenizer
+torch.serialization.add_safe_globals([Preprocessor, LanguageTokenizer, SequenceTokenizer])
+
+phonemizer = OpenPhonemizer()
 
 
 class Scene(BaseModel):
@@ -717,7 +725,8 @@ def generate_video_task(job_id: str, request: VideoRequest):
                 clean_text = sanitize_text_for_tts(scene.text)
                 audio_path = f"temp_{job_id}_{i}.wav"
                 try:
-                    samples, sample_rate = kokoro.create(clean_text, voice=request.voice, speed=1.0, lang="en-us")
+                    phonemes = phonemizer(clean_text)
+                    samples, sample_rate = kokoro.create(phonemes, voice=request.voice, speed=1.0, lang="en-us", is_phonemes=True)
                     sf.write(audio_path, samples, sample_rate)
                     audio_clip = AudioFileClip(audio_path)
                 except Exception as e:
@@ -761,7 +770,8 @@ def generate_video_task(job_id: str, request: VideoRequest):
                 clean_text = sanitize_text_for_tts(scene.text)
                 audio_path = f"temp_{job_id}_{i}.wav"
                 try:
-                    samples, sample_rate = kokoro.create(clean_text, voice=request.voice, speed=1.0, lang="en-us")
+                    phonemes = phonemizer(clean_text)
+                    samples, sample_rate = kokoro.create(phonemes, voice=request.voice, speed=1.0, lang="en-us", is_phonemes=True)
                     sf.write(audio_path, samples, sample_rate)
                     audio_clip = AudioFileClip(audio_path)
                 except Exception as e:
