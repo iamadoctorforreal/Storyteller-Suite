@@ -24,7 +24,7 @@ CHINESE_MODEL_CONFIG = {
     "repo_id": "hexgrad/Kokoro-82M",
     "language_code": 'z',
     "description": "Kokoro 82M Chinese (Mandarin) TTS Model v1.1",
-    "phonemizer": "espeak-zh",  # Specialized Chinese phonemizer
+    "phonemizer": "misaki",  # Using misaki instead of espeak-ng
     "sample_rate": 24000,
     "voice_prefix": ["zf_", "zm_"],  # Chinese female (zf_) and male (zm_) voices
 }
@@ -162,8 +162,8 @@ class ChineseTTSConfig:
             "model": CHINESE_MODEL_CONFIG,
             "voices": CHINESE_VOICES,
             "phonemizer": {
-                "backend": "espeak-ng",
-                "language": "zh",  # Chinese language code for espeak
+                "backend": "misaki",
+                "language": "zh",  # Chinese language code
                 "preserve_punctuation": True,
                 "strip": False
             },

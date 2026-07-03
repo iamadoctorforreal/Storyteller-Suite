@@ -212,67 +212,7 @@
 #        with codecs.open(str(config_path), 'r', encoding='utf-8-sig') as f:
 #            return json.load(f)
 #
-## Initialize espeak-ng
-#phonemizer_available = False  # Global flag to track if phonemizer is working
-#current_phonemizer_lang = None  # Track current phonemizer language
-#
-#def initialize_phonemizer(language: str = 'en-us') -> bool:
-#    """Initialize phonemizer for a specific language
-#    
-#    Args:
-#        language: Language code for phonemizer (e.g., 'en-us', 'zh')
-#        
-#    Returns:
-#        True if initialization successful, False otherwise
-#    """
-#    global phonemizer_available, current_phonemizer_lang
-#    
-#    try:
-#        from phonemizer.backend.espeak.wrapper import EspeakWrapper
-#        from phonemizer import phonemize
-#        import espeakng_loader
-#
-#        # Make library available first
-#        library_path = espeakng_loader.get_library_path()
-#        data_path = espeakng_loader.get_data_path()
-#        espeakng_loader.make_library_available()
-#
-#        # Set up espeak-ng paths
-#        EspeakWrapper.library_path = library_path
-#        EspeakWrapper.data_path = data_path
-#
-#        # Verify espeak-ng is working with specified language
-#        try:
-#            test_text = 'test' if language in ['en-us', 'en-gb'] else '测试'
-#            test_phonemes = phonemize(test_text, language=language)
-#            if test_phonemes:
-#                phonemizer_available = True
-#                current_phonemizer_lang = language
-#                logger.info(f"Phonemizer successfully initialized for language: {language}")
-#                return True
-#            else:
-#                logger.warning("Phonemization returned empty result")
-#                return False
-#        except Exception as e:
-#            # Continue without espeak functionality - be more specific about error types
-#            if "espeak" in str(e).lower():
-#                logger.warning(f"eSpeak not found: {e}")
-#            else:
-#                logger.warning(f"Phonemizer initialization error: {e}")
-#            return False
-#
-#    except ImportError as e:
-#        logger.warning(f"Phonemizer packages not installed: {e}")
-#        logger.info("If you want phoneme visualization, manually install required packages:")
-#        logger.info("pip install espeakng-loader phonemizer-fork")
-#        return False
-#
-## Initialize default English phonemizer
-#try:
-#    initialize_phonemizer('en-us')
-#except Exception as e:
-#    logger.warning(f"Could not initialize default phonemizer: {e}")
-#
+
 ## Initialize pipeline globally with thread safety
 #_pipeline = None
 #_pipeline_lock = threading.RLock()  # Reentrant lock for thread safety
@@ -516,20 +456,7 @@
 #                    logger.error(f"Error downloading config: {e}")
 #                    raise ValueError(f"Could not download config: {e}") from e
 #
-#            # Initialize phonemizer for the appropriate language
-#            if is_chinese_model:
-#                logger.info("Initializing phonemizer for Chinese...")
-#                try:
-#                    initialize_phonemizer('zh')
-#                except Exception as e:
-#                    logger.warning(f"Could not initialize Chinese phonemizer: {e}")
-#            else:
-#                logger.info("Initializing phonemizer for English...")
-#                try:
-#                    initialize_phonemizer('en-us')
-#                except Exception as e:
-#                    logger.warning(f"Could not initialize English phonemizer: {e}")
-#
+
 #            # Download voice files - require at least one voice
 #            try:
 #                downloaded_voices = download_voice_files(repo_version=repo_version, required_count=1)
